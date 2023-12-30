@@ -10,3 +10,73 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+
+let map, mapEvent;
+
+// MAP
+//Geolocation API - navigator.geolocation.getCurrentPosition(1st callback success, 2nd callback)
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(function (position) {
+    //console.log(position);
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+    //console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
+    const coords = [latitude, longitude];
+
+    map = L.map('map').setView(coords, 14); //L is kind of a namespace, like Intl. L has couple of methods. comes frome leaflet library
+
+    // Map is made out of small tiles
+    L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Handling clicks on map
+    map.on(
+      'click',
+      function (mapE) {
+        mapEvent = mapE;
+        form.classList.remove('hidden');
+        inputDistance.focus();
+      },
+      function () {
+        alert('Could not get your position!');
+      }
+    );
+  });
+}
+
+// WORKOUT FORM
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // Clear input fields
+  inputDistance.value =
+    inputDuration.value =
+    inputCadence.value =
+    inputElevation.value =
+      '';
+
+  //Display marker
+  const { lat, lng } = mapEvent.latlng;
+  L.marker([lat, lng], { opacity: 0.8 })
+    .addTo(map)
+    .bindPopup(
+      L.popup([lat, lng], {
+        //content: 'Run/Cycle',
+        maxWidth: 300,
+        minWidth: 80,
+        //keepInView: true,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup',
+      })
+    )
+    .setPopupContent('Run/Cycle')
+    .openPopup();
+});
+
+inputType.addEventListener('change', function () {
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+});
