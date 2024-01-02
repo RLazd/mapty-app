@@ -8,6 +8,7 @@ const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10); //if created same time --> ids are the same. Should use external library
+  clicks = 0;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // array of [lat, lng]
@@ -22,6 +23,10 @@ class Workout {
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
+  }
+
+  click() {
+    this.clicks++;
   }
 }
 
@@ -55,11 +60,6 @@ class Cycling extends Workout {
   }
 }
 
-// const run1 = new Running([23, -12], 10.2, 24, 178);
-// const cycle1 = new Cycling([23, -12], 27, 95, 523);
-// console.log(run1);
-// console.log(cycle1);
-
 /////////////////////////////////////////////////////
 // APP ARCHITECTURE
 const form = document.querySelector('.form');
@@ -72,15 +72,22 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 class App {
   #map;
+  #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
 
   constructor() {
+    // Get users position
     this._getPosition();
 
-    form.addEventListener('submit', this._newWorkout.bind(this)); // inside eventListener/eventHandler this=DOM element that it is attached, in this case => form!!!
+    // Get local storage
+    this._getLocalStorage();
+
+    // Event handlers
+    form.addEventListener('submit', this._newWorkout.bind(this)); // inside eventListener/eventHandler this=DOM element that it is attached, in this case => form!!! thats why binding is needed
 
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -101,7 +108,7 @@ class App {
     const coords = [latitude, longitude];
 
     //console.log(this); //undefined
-    this.#map = L.map('map').setView(coords, 14); //L is kind of a namespace, like Intl. L has couple of methods. comes frome leaflet library
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel); //L is kind of a namespace, like Intl. L has couple of methods. comes frome leaflet library, Leaflet library is added in html
 
     // Map is made out of small tiles
     L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -111,10 +118,14 @@ class App {
 
     // Handling clicks on map
     this.#map.on('click', this._showForm.bind(this)); //if not bind -> error: Cannot write private memebet #mapEvent to an object whose class did not declare it, reason again - incorrect this=> this = map itself (this is an event handler f)
+
+    // Render markers (from local storage)
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
-    //console.log(this);
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
@@ -127,6 +138,7 @@ class App {
       inputCadence.value =
       inputElevation.value =
         '';
+
     // Add hidden class
     form.style.display = 'none';
     form.classList.add('hidden');
@@ -181,17 +193,20 @@ class App {
     this.#workouts.push(workout);
 
     // Render workout on the map as marker
-    this._renderWorkourMarker(workout);
+    this._renderWorkoutMarker(workout);
 
     // Render workout on the list
     this._renderWorkout(workout);
 
     // Clear input fields
     this._hideForm();
+
+    //Set local storage to lal workouts
+    this._setLocalStoreage();
   }
 
   // Render workout marker
-  _renderWorkourMarker(workout) {
+  _renderWorkoutMarker(workout) {
     L.marker(workout.coords, { opacity: 0.8 })
       .addTo(this.#map)
       .bindPopup(
@@ -257,7 +272,64 @@ class App {
 
     form.insertAdjacentHTML('afterend', html);
   }
+
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout'); //everything will end up in li element, it includes id
+
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+
+    // using the public interface
+    // workout.click(); - disabled cus Local storage objects are not an instance Of Running/Cycling(Workout) class
+  }
+
+  _setLocalStoreage() {
+    // Local storage is an API that browser provides for us. Its key-value store. Is is only advised to use for small amounts.
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts')); // but these objects do not have Workout->Runnning/Cycling prototype
+
+    if (!data) return;
+
+    this.#workouts = data;
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+      //this._renderWorkoutMarker(work); //does not work cus map has not loaded
+    });
+  }
+
+  reset() {
+    localStorage.removeItem('workouts');
+
+    // Reloading page, Location - a big obj that has multiple methods in the browser
+    location.reload();
+  }
 }
 
 // Create an object of the class
 const app = new App();
+
+//!Options to improve the app:
+// Edit, Delete, Delete all workouts
+// Sort workouts by field (distance, etc.)
+// Rebuild objects from local storage
+// Create more realistic error/confirmation messages (fade-out, modal windows)
+
+// Ability to position map that is shows all workouts [very hard, google abut leaflet library]
+// Ability to draw lines/shapes instead of just points [very hard]
+
+//After next sec
+// Geocode location fro mcoords [after async lecture]
+// Display weather data for workout time/place [ after async lecture]
