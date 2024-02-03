@@ -1,2 +1,8 @@
-# mapty-app
-Mapty app - (Section 15 from Udemy course The Complete JavaScript course 2024)
+# Mapty App
+
+Mapty app stores previous running/cycling workouts. Allows to add a new workout & displays workout markers on a map.
+Project implements geolocation API, Leaflet third party library and uses local storage for previously added workouts.
+
+First projecy from Udemy course The Complete JavaScript course 2024.
+
+[![Demo CountPages alpha](https://share.gifyoutube.com/KzB6Gb.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)

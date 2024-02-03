@@ -320,16 +320,3 @@ class App {
 
 // Create an object of the class
 const app = new App();
-
-//!Options to improve the app:
-// Edit, Delete, Delete all workouts
-// Sort workouts by field (distance, etc.)
-// Rebuild objects from local storage
-// Create more realistic error/confirmation messages (fade-out, modal windows)
-
-// Ability to position map that is shows all workouts [very hard, google abut leaflet library]
-// Ability to draw lines/shapes instead of just points [very hard]
-
-//After next sec
-// Geocode location fro mcoords [after async lecture]
-// Display weather data for workout time/place [ after async lecture]
