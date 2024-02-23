@@ -20,6 +20,10 @@
       crossorigin=""
     />
     <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
       defer
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -27,7 +31,7 @@
     ></script>
 
     <script defer src="script.js"></script>
-    <title>mapty // Map your workouts</title>
+    <title>Mapty app // Map your workouts</title>
   </head>
   <body>
     <div class="sidebar">
@@ -69,8 +73,26 @@
           </div>
           <button class="form__btn">OK</button>
         </form>
+      </ul>
 
-        <!-- <li class="workout workout--running" data-id="1234567890">
+      <button class="delete__all__workouts">Delete All Workouts</button>
+
+      <p class="copyright">
+        &copy; Copyright by
+        <a
+          class="twitter-link"
+          target="_blank"
+          href="https://twitter.com/jonasschmedtman"
+          >Jonas Schmedtmann</a
+        >. Use for learning or your portfolio. Don't use to teach. Don't claim
+        as your own.
+      </p>
+    </div>
+
+    <div id="map"></div>
+  </body>
+</html>
+<!-- <li class="workout workout--running" data-id="1234567890">
           <h2 class="workout__title">Running on April 14</h2>
           <div class="workout__details">
             <span class="workout__icon">🏃‍♂️</span>
@@ -117,20 +139,3 @@
             <span class="workout__unit">m</span>
           </div>
         </li> -->
-      </ul>
-
-      <p class="copyright">
-        &copy; Copyright by
-        <a
-          class="twitter-link"
-          target="_blank"
-          href="https://twitter.com/jonasschmedtman"
-          >Jonas Schmedtmann</a
-        >. Use for learning or your portfolio. Don't use to teach. Don't claim
-        as your own.
-      </p>
-    </div>
-
-    <div id="map"></div>
-  </body>
-</html>

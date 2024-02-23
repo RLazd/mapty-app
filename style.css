@@ -87,7 +87,27 @@ a:visited {
 .workout__title {
   font-size: 1.7rem;
   font-weight: 600;
-  grid-column: 1 / -1;
+  grid-column: 1 / -2;
+}
+
+.btn__delete__workout {
+  font-size: 1.7rem;
+  background-color: transparent;
+  font-weight: 600;
+  border: none;
+  grid-column: 5;
+  align-self: start;
+  justify-self: end;
+  transition: opacity 0.3s ease;
+}
+
+.icon__delete {
+  color: #757575;
+  cursor: pointer;
+}
+
+.icon__delete:hover {
+  color: orangered;
 }
 
 .workout__details {
@@ -169,6 +189,23 @@ a:visited {
 
 .form__btn {
   display: none;
+}
+
+.delete__all__workouts {
+  width: 18rem;
+  border: none;
+  background-color: var(--color-dark--2);
+  padding: 1.2rem 2rem;
+  align-self: flex-end;
+  color: #fff;
+  border-radius: 2rem;
+  margin-top: 5rem;
+  margin-bottom: 10rem;
+}
+
+.delete__all__workouts:hover {
+  border: 1px solid red;
+  background-color: transparent;
 }
 
 .copyright {

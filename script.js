@@ -3,7 +3,7 @@
 //prettier-ignore
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 // CLASSES
 class Workout {
   date = new Date();
@@ -60,7 +60,7 @@ class Cycling extends Workout {
   }
 }
 
-/////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 // APP ARCHITECTURE
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
@@ -75,26 +75,27 @@ class App {
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  popups = [];
 
   constructor() {
     // Get users position
-    this._getPosition();
+    this.#getPosition();
 
     // Get local storage
-    this._getLocalStorage();
+    this.#getLocalStorage();
 
     // Event handlers
-    form.addEventListener('submit', this._newWorkout.bind(this)); // inside eventListener/eventHandler this=DOM element that it is attached, in this case => form!!! thats why binding is needed
+    form.addEventListener('submit', this.#newWorkout.bind(this)); // inside eventListener/eventHandler this=DOM element that it is attached, in this case => form!!! thats why binding is needed
 
-    inputType.addEventListener('change', this._toggleElevationField);
-    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+    inputType.addEventListener('change', this.#toggleElevationField);
+    containerWorkouts.addEventListener('click', this.#moveToPopup.bind(this));
   }
 
-  _getPosition() {
+  #getPosition() {
     //Geolocation API - navigator.geolocation.getCurrentPosition(1st callback success, 2nd callback)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        this._loadMap.bind(this), //have to bind cus getCurrentPosition is calling _loadMap (as a regular function not method) and in that case this = undefined)
+        this.#loadMap.bind(this), //have to bind cus getCurrentPosition is calling #loadMap (as a regular function not method) and in that case this = undefined)
         function () {
           alert('Could not get your position!');
         }
@@ -102,7 +103,7 @@ class App {
     }
   }
 
-  _loadMap(position) {
+  #loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
     const coords = [latitude, longitude];
@@ -117,21 +118,21 @@ class App {
     }).addTo(this.#map);
 
     // Handling clicks on map
-    this.#map.on('click', this._showForm.bind(this)); //if not bind -> error: Cannot write private memebet #mapEvent to an object whose class did not declare it, reason again - incorrect this=> this = map itself (this is an event handler f)
+    this.#map.on('click', this.#showForm.bind(this)); //if not bind -> error: Cannot write private memebet #mapEvent to an object whose class did not declare it, reason again - incorrect this=> this = map itself (this is an event handler f)
 
     // Render markers (from local storage)
     this.#workouts.forEach(work => {
-      this._renderWorkoutMarker(work);
+      this.#renderWorkoutMarker(work);
     });
   }
 
-  _showForm(mapE) {
+  #showForm(mapE) {
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
   }
 
-  _hideForm() {
+  #hideForm() {
     // Empty inputs
     inputDistance.value =
       inputDuration.value =
@@ -145,12 +146,12 @@ class App {
     setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
-  _toggleElevationField() {
+  #toggleElevationField() {
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
-  _newWorkout(e) {
+  #newWorkout(e) {
     const validInputs = (...inputs) =>
       inputs.every(inp => Number.isFinite(inp));
     const checkPositiveNum = (...inputs) => inputs.every(inp => inp > 0);
@@ -193,20 +194,20 @@ class App {
     this.#workouts.push(workout);
 
     // Render workout on the map as marker
-    this._renderWorkoutMarker(workout);
+    this.#renderWorkoutMarker(workout);
 
     // Render workout on the list
-    this._renderWorkout(workout);
+    this.#renderWorkout(workout);
 
     // Clear input fields
-    this._hideForm();
+    this.#hideForm();
 
     //Set local storage to lal workouts
-    this._setLocalStoreage();
+    this.#setLocalStorage();
   }
 
   // Render workout marker
-  _renderWorkoutMarker(workout) {
+  #renderWorkoutMarker(workout) {
     L.marker(workout.coords, { opacity: 0.8 })
       .addTo(this.#map)
       .bindPopup(
@@ -224,10 +225,13 @@ class App {
       .openPopup();
   }
 
-  _renderWorkout(workout) {
+  #renderWorkout(workout) {
     let html = `
         <li class="workout workout--${workout.type}" data-id="${workout.id}">
           <h2 class="workout__title">${workout.description}</h2>
+          <button class="btn__delete__workout" >
+            <ion-icon class="icon__delete" name="trash-outline"></ion-icon>
+          </button>
           <div class="workout__details">
             <span class="workout__icon">${
               workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
@@ -273,7 +277,7 @@ class App {
     form.insertAdjacentHTML('afterend', html);
   }
 
-  _moveToPopup(e) {
+  #moveToPopup(e) {
     const workoutEl = e.target.closest('.workout'); //everything will end up in li element, it includes id
 
     if (!workoutEl) return;
@@ -293,20 +297,20 @@ class App {
     // workout.click(); - disabled cus Local storage objects are not an instance Of Running/Cycling(Workout) class
   }
 
-  _setLocalStoreage() {
+  #setLocalStorage() {
     // Local storage is an API that browser provides for us. Its key-value store. Is is only advised to use for small amounts.
     localStorage.setItem('workouts', JSON.stringify(this.#workouts));
   }
 
-  _getLocalStorage() {
+  #getLocalStorage() {
     const data = JSON.parse(localStorage.getItem('workouts')); // but these objects do not have Workout->Runnning/Cycling prototype
 
     if (!data) return;
 
     this.#workouts = data;
     this.#workouts.forEach(work => {
-      this._renderWorkout(work);
-      //this._renderWorkoutMarker(work); //does not work cus map has not loaded
+      this.#renderWorkout(work);
+      //this.#renderWorkoutMarker(work); //does not work cus map has not loaded
     });
   }
 
@@ -316,8 +320,29 @@ class App {
     // Reloading page, Location - a big obj that has multiple methods in the browser
     location.reload();
   }
+
+  deleteWorkout(id) {
+    const workouts = JSON.parse(localStorage.getItem('workouts'));
+    let indexToDelete = workouts.findIndex(workout => workout.id === id);
+
+    workouts.splice(indexToDelete, 1);
+
+    const updatedWorkoutsString = JSON.stringify(workouts);
+    // Update the workouts item in localStorage with the modified JSON string
+    localStorage.setItem('workouts', updatedWorkoutsString);
+
+    location.reload();
+  }
 }
 
 // Create an object of the class
 const app = new App();
 
+// Delete workouts
+document.querySelectorAll('.icon__delete').forEach(function (button) {
+  button.addEventListener('click', function () {
+    const workoutId = this.closest('.workout').dataset.id;
+    app.deleteWorkout(workoutId);
+    //app.deleteWorkout();
+  });
+});
