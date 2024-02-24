@@ -196,16 +196,20 @@ a:visited {
   border: none;
   background-color: var(--color-dark--2);
   padding: 1.2rem 2rem;
-  align-self: flex-end;
+  align-self: center;
   color: #fff;
-  border-radius: 2rem;
+  border-radius: 3px;
   margin-top: 5rem;
-  margin-bottom: 10rem;
+  margin-bottom: 5rem;
 }
 
 .delete__all__workouts:hover {
   border: 1px solid red;
   background-color: transparent;
+}
+
+.hidden__btn {
+  display: none;
 }
 
 .copyright {

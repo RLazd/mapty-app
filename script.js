@@ -69,6 +69,8 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const btnDeleteWorkout = document.querySelectorAll('.btn__delete__workout');
+const btnDeleteAllWorkouts = document.querySelector('.delete__all__workouts');
 
 class App {
   #map;
@@ -89,6 +91,24 @@ class App {
 
     inputType.addEventListener('change', this.#toggleElevationField);
     containerWorkouts.addEventListener('click', this.#moveToPopup.bind(this));
+
+    // Delete all workouts
+    btnDeleteAllWorkouts.addEventListener(
+      'click',
+      this.deleteAllWorkouts.bind(this)
+    );
+
+    // this should be outside...cus outside workss...
+    // document
+    //   .querySelectorAll('.btn__delete__workout')
+    //   .forEach(function (button) {
+    //     button.addEventListener('click', function () {
+    //       const workoutId = this.closest('.workout').dataset.id;
+    //       console.log('deleting');
+    //       this.deleteWorkout(workoutId).bind(this);
+    //       //app.deleteWorkout();
+    //     });
+    //   });
   }
 
   #getPosition() {
@@ -204,6 +224,8 @@ class App {
 
     //Set local storage to lal workouts
     this.#setLocalStorage();
+
+    location.reload();
   }
 
   // Render workout marker
@@ -312,25 +334,43 @@ class App {
       this.#renderWorkout(work);
       //this.#renderWorkoutMarker(work); //does not work cus map has not loaded
     });
+
+    // Add Delete All Workuts Btn
+    if (this.#workouts.length > 0) this.#addBtnDeleteAllWorkouts();
+  }
+
+  deleteWorkout(id) {
+    let indexToDelete = this.#workouts.findIndex(workout => workout.id === id);
+    console.log('workouts bef: :', this.#workouts);
+    this.#workouts.splice(indexToDelete, 1);
+    console.log('after ', this.#workouts);
+    this.#setLocalStorage();
+
+    if (this.#workouts.length === 0) this.#removeBtnDeleteAllWorkouts();
+
+    location.reload();
   }
 
   reset() {
     localStorage.removeItem('workouts');
-
     // Reloading page, Location - a big obj that has multiple methods in the browser
     location.reload();
   }
 
-  deleteWorkout(id) {
-    const workouts = JSON.parse(localStorage.getItem('workouts'));
-    let indexToDelete = workouts.findIndex(workout => workout.id === id);
+  #addBtnDeleteAllWorkouts() {
+    btnDeleteAllWorkouts.classList.remove('hidden__btn');
+  }
 
-    workouts.splice(indexToDelete, 1);
+  #removeBtnDeleteAllWorkouts() {
+    btnDeleteAllWorkouts.classList.add('hidden__btn');
+  }
 
-    const updatedWorkoutsString = JSON.stringify(workouts);
-    // Update the workouts item in localStorage with the modified JSON string
-    localStorage.setItem('workouts', updatedWorkoutsString);
+  deleteAllWorkouts() {
+    this.#removeBtnDeleteAllWorkouts();
+    this.reset();
+  }
 
+  reload() {
     location.reload();
   }
 }
@@ -338,11 +378,14 @@ class App {
 // Create an object of the class
 const app = new App();
 
-// Delete workouts
-document.querySelectorAll('.icon__delete').forEach(function (button) {
+// Delete a specific workout
+document.querySelectorAll('.btn__delete__workout').forEach(function (button) {
   button.addEventListener('click', function () {
     const workoutId = this.closest('.workout').dataset.id;
-    app.deleteWorkout(workoutId);
+    app.deleteWorkout(workoutId).bind(app);
     //app.deleteWorkout();
   });
 });
+
+// // Delete all workouts
+// btnDeleteAllWorkouts.addEventListener('click', app.deleteAllWorkouts.bind(app));
