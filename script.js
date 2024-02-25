@@ -71,6 +71,9 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 const btnDeleteWorkout = document.querySelectorAll('.btn__delete__workout');
 const btnDeleteAllWorkouts = document.querySelector('.delete__all__workouts');
+const modal = document.querySelector('.modal');
+const overlay = document.querySelector('.overlay');
+const btnCloseModal = document.querySelector('.close-modal');
 
 class App {
   #map;
@@ -109,6 +112,10 @@ class App {
     //       //app.deleteWorkout();
     //     });
     //   });
+
+    // Close error modal window
+    btnCloseModal.addEventListener('click', this._closeErrorModalWindow);
+    overlay.addEventListener('click', this._closeErrorModalWindow);
   }
 
   #getPosition() {
@@ -193,7 +200,7 @@ class App {
         !validInputs(distance, duration, cadence) ||
         !checkPositiveNum(distance, duration, cadence)
       )
-        return alert('Inputs have to be positive numbers!');
+        return this.#openErrorModalWindow();
 
       workout = new Running([lat, lng], distance, duration, cadence);
     }
@@ -206,7 +213,7 @@ class App {
         !validInputs(distance, duration, elevation) ||
         !checkPositiveNum(distance, duration)
       )
-        return alert('Inputs have to be positive numbers!');
+        return this.#openErrorModalWindow();
       workout = new Cycling([lat, lng], distance, duration, elevation);
     }
 
@@ -358,11 +365,11 @@ class App {
   }
 
   #addBtnDeleteAllWorkouts() {
-    btnDeleteAllWorkouts.classList.remove('hidden__btn');
+    btnDeleteAllWorkouts.classList.remove('hidden');
   }
 
   #removeBtnDeleteAllWorkouts() {
-    btnDeleteAllWorkouts.classList.add('hidden__btn');
+    btnDeleteAllWorkouts.classList.add('hidden');
   }
 
   deleteAllWorkouts() {
@@ -373,6 +380,16 @@ class App {
   reload() {
     location.reload();
   }
+
+  #openErrorModalWindow() {
+    modal.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+  }
+
+  _closeErrorModalWindow() {
+    modal.classList.add('hidden');
+    overlay.classList.add('hidden');
+  }
 }
 
 // Create an object of the class
@@ -382,10 +399,14 @@ const app = new App();
 document.querySelectorAll('.btn__delete__workout').forEach(function (button) {
   button.addEventListener('click', function () {
     const workoutId = this.closest('.workout').dataset.id;
-    app.deleteWorkout(workoutId).bind(app);
+    app.deleteWorkout(workoutId);
     //app.deleteWorkout();
   });
 });
 
-// // Delete all workouts
-// btnDeleteAllWorkouts.addEventListener('click', app.deleteAllWorkouts.bind(app));
+// Close modal window with escape btn
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+    app._closeErrorModalWindow();
+  }
+});
