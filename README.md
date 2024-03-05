@@ -5,4 +5,4 @@ Project implements geolocation API, Leaflet third party library and uses local s
 
 First projecy from Udemy course The Complete JavaScript course 2024.
 
-https://github.com/RLazd/mapty-app/assets/110335414/599d8ede-63da-4821-94d3-0616086f17bd
+![MaptyNew - Made with Clipchamp](https://github.com/RLazd/mapty-app/assets/110335414/23573037-9156-44c1-815b-908c75c3e245)
